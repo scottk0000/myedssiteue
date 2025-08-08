@@ -40,14 +40,16 @@
     text-indent: 0;
 }
 
-.block.quote > div:last-child > div {
+
+.block.quote cite {
+    display: block;
     margin: 0 16px;
     font-size: small;
     font-style: italic;
     position: relative;
 }
 
-.block.quote > div:last-child > div::after {
+.block.quote cite::after {
     content: "";
     display: block;
     position: absolute;
