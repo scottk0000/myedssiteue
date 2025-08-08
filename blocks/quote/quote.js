@@ -1,7 +1,10 @@
 export default function decorate(block) {
-  const [quoteWrapper] = block.children;
+  // Get quote and author from block dataset or fallback to default
+  const quote = block.dataset.quote || 'Think, McFly! Think!';
+  const author = block.dataset.author || 'Biff Tannen';
 
-  const blockquote = document.createElement('blockquote');
-  blockquote.textContent = quoteWrapper.textContent.trim();
-  quoteWrapper.replaceChildren(blockquote);
+  block.innerHTML = `
+    <blockquote>${quote}</blockquote>
+    <cite>${author}</cite>
+  `;
 }
