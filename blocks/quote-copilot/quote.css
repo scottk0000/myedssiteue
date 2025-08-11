@@ -1,4 +1,36 @@
-.block.quote {
+/* Unified styling for quote-copilot block */
+.block.quote-copilot {
+    background-color: #ccc;
+    padding: 0 0 24px;
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0;
+}
+
+.block.quote-copilot blockquote {
+    margin: 16px;
+    text-indent: 0;
+}
+
+.block.quote-copilot cite {
+    display: block;
+    margin: 0 16px;
+    font-size: small;
+    font-style: italic;
+    position: relative;
+}
+
+.block.quote-copilot cite::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    height: 5px;
+    width: 30px;
+    background-color: darkgray;
+}
+.block.quote-copilot {
     background-color: #f5f5f5;
     padding: 2rem;
     display: flex;
@@ -8,7 +40,7 @@
     border-radius: 4px;
 }
 
-.block.quote blockquote {
+.block.quote-copilot blockquote {
     margin: 0 0 1rem 0;
     text-indent: 0;
     font-size: 1.125rem;
@@ -17,7 +49,7 @@
     quotes: """ """ "'" "'";
 }
 
-.block.quote blockquote::before {
+.block.quote-copilot blockquote::before {
     content: open-quote;
     font-size: 2rem;
     color: #0066cc;
@@ -26,7 +58,7 @@
     vertical-align: -0.4rem;
 }
 
-.block.quote blockquote::after {
+.block.quote-copilot blockquote::after {
     content: close-quote;
     font-size: 2rem;
     color: #0066cc;
@@ -35,7 +67,7 @@
     vertical-align: -0.4rem;
 }
 
-.block.quote cite {
+.block.quote-copilot cite {
     display: block;
     margin: 0;
     font-size: 0.875rem;
@@ -45,7 +77,7 @@
     position: relative;
 }
 
-.block.quote cite::before {
+.block.quote-copilot cite::before {
     content: "— ";
     color: #0066cc;
 }
