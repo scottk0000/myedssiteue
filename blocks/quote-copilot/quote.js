@@ -1,44 +1,21 @@
+// Enhanced quote block: supports quote and author, accessible, robust
 export default function decorate(block) {
-  let quote = '';
-  let author = '';
+	// Find quote and author from block children
+	const quoteText = block.querySelector(':scope > div:first-child')?.textContent.trim() || 'Think, McFly! Think!';
+	const authorText = block.querySelector(':scope > div:nth-child(2)')?.textContent.trim();
 
-  // First try to get from data attributes
-  if (block.dataset.quote) {
-    quote = block.dataset.quote;
-    author = block.dataset.author || '';
-  } else {
-    // Fallback: parse from existing content
-    const children = Array.from(block.children);
-    if (children.length >= 1) {
-      quote = children[0].textContent.trim();
-      author = children.length >= 2 ? children[1].textContent.trim() : '';
-    }
-  }
+	// Clear block
+	block.innerHTML = '';
 
-  // Sanitize content to prevent XSS
-  const sanitizeText = (text) => {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  };
+	// Create blockquote
+	const blockquote = document.createElement('blockquote');
+	blockquote.textContent = quoteText;
+	block.appendChild(blockquote);
 
-  // Use fallback values if still empty
-  if (!quote) {
-    quote = 'Think, McFly! Think!';
-    author = 'Biff Tannen';
-  }
-
-  // Build the HTML structure
-  const blockquoteEl = document.createElement('blockquote');
-  blockquoteEl.innerHTML = sanitizeText(quote);
-  
-  const citeEl = document.createElement('cite');
-  citeEl.innerHTML = sanitizeText(author);
-
-  // Clear existing content and add new elements
-  block.innerHTML = '';
-  block.appendChild(blockquoteEl);
-  if (author) {
-    block.appendChild(citeEl);
-  }
+	// Add author if present
+	if (authorText) {
+		const cite = document.createElement('cite');
+		cite.textContent = authorText;
+		block.appendChild(cite);
+	}
 }

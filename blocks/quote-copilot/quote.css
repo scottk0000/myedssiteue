@@ -1,28 +1,48 @@
+.block.quote-copilot {
+	background: #f9f9f9;
+	border-left: 4px solid #0066cc;
+	padding: 1.5rem 2rem 1.5rem 1.5rem;
+	margin: 2rem 0;
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+	max-width: 700px;
+}
+
 .block.quote-copilot blockquote {
-    margin: 16px;
-    text-indent: 0;
+	margin: 0 0 1rem 0;
+	font-size: 1.25rem;
+	line-height: 1.6;
+	color: #222;
+	font-style: italic;
+	quotes: "\201C" "\201D" "\2018" "\2019";
+	position: relative;
 }
-
+.block.quote-copilot blockquote::before {
+	content: open-quote;
+	color: #0066cc;
+	font-size: 2.5rem;
+	line-height: 0.1rem;
+	margin-right: 0.25rem;
+	vertical-align: -0.4rem;
+}
 .block.quote-copilot blockquote::after {
-    content: close-quote;
-    font-size: 2rem;
-    color: #0066cc;
-    line-height: 0.1rem;
-    margin-left: 0.25rem;
-    vertical-align: -0.4rem;
+	content: close-quote;
+	color: #0066cc;
+	font-size: 2.5rem;
+	line-height: 0.1rem;
+	margin-left: 0.25rem;
+	vertical-align: -0.4rem;
 }
-
 .block.quote-copilot cite {
-    display: block;
-    margin: 0;
-    font-size: 0.875rem;
-    font-style: normal;
-    color: #666;
-    text-align: right;
-    position: relative;
+	display: block;
+	margin: 0;
+	font-size: 1rem;
+	font-style: normal;
+	color: #666;
+	text-align: right;
+	position: relative;
 }
-
 .block.quote-copilot cite::before {
-    content: "— ";
-    color: #0066cc;
+	content: "— ";
+	color: #0066cc;
 }
