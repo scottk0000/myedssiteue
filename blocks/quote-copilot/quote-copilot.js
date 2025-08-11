@@ -1,6 +1,6 @@
 // Enhanced quote block: supports quote and author, accessible, robust, and funcational
 export default function decorate(block) {
-	// Find quote and author from block children
+    // Find quote and author from block children
 	const quoteText = block.querySelector(':scope > div:first-child')?.textContent.trim() || 'Think, McFly! Think!';
 	const authorText = block.querySelector(':scope > div:nth-child(2)')?.textContent.trim();
 
