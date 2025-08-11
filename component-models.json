@@ -228,5 +228,24 @@
         "value": ""
       }
     ]
+  },
+  {
+    "id": "quote-copilot",
+    "fields": [
+      {
+        "component": "richtext",
+        "name": "quote",
+        "value": "Think, McFly! Think!",
+        "label": "Quote Text",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "author",
+        "label": "Author",
+        "value": "Biff Tannen"
+      }
+    ]
   }
 ]

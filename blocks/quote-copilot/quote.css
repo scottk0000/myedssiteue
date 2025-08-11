@@ -1,0 +1,51 @@
+.block.quote {
+    background-color: #f5f5f5;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0;
+    border-left: 4px solid #0066cc;
+    border-radius: 4px;
+}
+
+.block.quote blockquote {
+    margin: 0 0 1rem 0;
+    text-indent: 0;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    font-style: italic;
+    quotes: """ """ "'" "'";
+}
+
+.block.quote blockquote::before {
+    content: open-quote;
+    font-size: 2rem;
+    color: #0066cc;
+    line-height: 0.1rem;
+    margin-right: 0.25rem;
+    vertical-align: -0.4rem;
+}
+
+.block.quote blockquote::after {
+    content: close-quote;
+    font-size: 2rem;
+    color: #0066cc;
+    line-height: 0.1rem;
+    margin-left: 0.25rem;
+    vertical-align: -0.4rem;
+}
+
+.block.quote cite {
+    display: block;
+    margin: 0;
+    font-size: 0.875rem;
+    font-style: normal;
+    color: #666;
+    text-align: right;
+    position: relative;
+}
+
+.block.quote cite::before {
+    content: "— ";
+    color: #0066cc;
+}
