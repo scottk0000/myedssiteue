@@ -1,6 +1,6 @@
 .block.quote-copilot {
 	background: #f9f9f9;
-	border-left: 4px solid #0066cc;
+	border-left: 4px solid #06c;
 	padding: 1.5rem 2rem 1.5rem 1.5rem;
 	margin: 2rem 0;
 
@@ -9,22 +9,25 @@
 	quotes: "\201C" "\201D" "\2018" "\2019";
 	position: relative;
 }
+
 .block.quote-copilot blockquote::before {
 	content: open-quote;
-	color: #0066cc;
+	color: #06c;
 	font-size: 2.5rem;
 	line-height: 0.1rem;
 	margin-right: 0.25rem;
 	vertical-align: -0.4rem;
 }
+
 .block.quote-copilot blockquote::after {
 	content: close-quote;
-	color: #0066cc;
+	color: #06c;
 	font-size: 2.5rem;
 	line-height: 0.1rem;
 	margin-left: 0.25rem;
 	vertical-align: -0.4rem;
 }
+
 .block.quote-copilot cite {
 	display: block;
 	margin: 0;
@@ -34,7 +37,8 @@
 	text-align: right;
 	position: relative;
 }
+
 .block.quote-copilot cite::before {
 	content: "— ";
-	color: #0066cc;
+	color: #06c;
 }
