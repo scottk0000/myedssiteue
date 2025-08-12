@@ -309,6 +309,16 @@ function createLoadingDisplay() {
  * Get configuration from block content or attributes
  */
 function getBlockConfig(block) {
+  // Debug logging - see the block structure
+  // eslint-disable-next-line no-console
+  console.log('Block element:', block);
+  // eslint-disable-next-line no-console
+  console.log('Block innerHTML:', block.innerHTML);
+  // eslint-disable-next-line no-console
+  console.log('Block children:', block.children);
+  // eslint-disable-next-line no-console
+  console.log('Block attributes:', [...block.attributes].map((attr) => `${attr.name}="${attr.value}"`));
+
   // First try to read from block content (standard AEM approach)
   const blockConfig = readBlockConfig(block);
 
