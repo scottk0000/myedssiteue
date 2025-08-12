@@ -327,12 +327,14 @@ function getBlockConfig(block) {
   console.log('Raw blockConfig:', blockConfig);
 
   // Map the Universal Editor field names to our config
+  // Note: toClassName converts camelCase to lowercase
+  // so apiKey becomes apikey, showForecast becomes showforecast
   const config = {
     location: blockConfig.location || block.getAttribute('data-location') || 'New York',
     provider: blockConfig.provider || block.getAttribute('data-provider') || 'openweathermap',
-    apiKey: blockConfig.apikey || blockConfig['api-key'] || block.getAttribute('data-api-key') || '',
+    apiKey: blockConfig.apikey || blockConfig.apiKey || block.getAttribute('data-api-key') || '',
     units: blockConfig.units || block.getAttribute('data-units') || 'metric',
-    showForecast: (blockConfig.showforecast || blockConfig['show-forecast'] || block.getAttribute('data-show-forecast')) === 'true',
+    showForecast: (blockConfig.showforecast || blockConfig.showForecast || block.getAttribute('data-show-forecast')) === 'true',
     theme: blockConfig.theme || block.getAttribute('data-theme') || 'default',
   };
 
@@ -349,8 +351,13 @@ export default async function decorate(block) {
   // eslint-disable-next-line no-console
   console.log('Weather block config:', config);
 
-  // Clear existing content
+  // Clear existing content - preserve the original content for debugging if needed
+  const originalContent = block.innerHTML;
   block.textContent = '';
+
+  // Debug: log the original content that was cleared
+  // eslint-disable-next-line no-console
+  console.log('Original block content:', originalContent);
 
   // Show loading state
   const loadingDisplay = createLoadingDisplay();
