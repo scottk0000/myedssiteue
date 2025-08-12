@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { readBlockConfig } from '../../scripts/aem.js';
 
 // Weather service configurations
 const WEATHER_SERVICES = {
@@ -7,11 +8,21 @@ const WEATHER_SERVICES = {
     currentEndpoint: '/weather',
     forecastEndpoint: '/forecast',
     iconBaseUrl: 'https://openweathermap.org/img/wn',
-    getParams: (location, apiKey, units) => ({
-      q: location,
-      appid: apiKey,
-      units,
-    }),
+    getParams: (location, apiKey, units) => {
+      const params = {
+        appid: apiKey,
+        units,
+      };
+      
+      // Check if location is a zip code pattern (5 digits or zip,country)
+      if (/^\d{5}(,\w{2})?$/.test(location.trim())) {
+        params.zip = location;
+      } else {
+        params.q = location;
+      }
+      
+      return params;
+    },
   },
   weatherapi: {
     baseUrl: 'https://api.weatherapi.com/v1',
@@ -295,17 +306,27 @@ function createLoadingDisplay() {
 }
 
 /**
- * Get configuration from block attributes
+ * Get configuration from block content or attributes
  */
 function getBlockConfig(block) {
-  return {
-    location: block.getAttribute('data-location') || 'New York',
-    provider: block.getAttribute('data-provider') || 'openweathermap',
-    apiKey: block.getAttribute('data-api-key') || '',
-    units: block.getAttribute('data-units') || 'metric',
-    showForecast: block.getAttribute('data-show-forecast') === 'true',
-    theme: block.getAttribute('data-theme') || 'default',
+  // First try to read from block content (standard AEM approach)
+  const blockConfig = readBlockConfig(block);
+  
+  // Debug logging - remove in production
+  // eslint-disable-next-line no-console
+  console.log('Raw blockConfig:', blockConfig);
+  
+  // Map the Universal Editor field names to our config
+  const config = {
+    location: blockConfig.location || block.getAttribute('data-location') || 'New York',
+    provider: blockConfig.provider || block.getAttribute('data-provider') || 'openweathermap',
+    apiKey: blockConfig.apikey || blockConfig['api-key'] || block.getAttribute('data-api-key') || '',
+    units: blockConfig.units || block.getAttribute('data-units') || 'metric',
+    showForecast: (blockConfig.showforecast || blockConfig['show-forecast'] || block.getAttribute('data-show-forecast')) === 'true',
+    theme: blockConfig.theme || block.getAttribute('data-theme') || 'default',
   };
+  
+  return config;
 }
 
 /**
@@ -313,6 +334,10 @@ function getBlockConfig(block) {
  */
 export default async function decorate(block) {
   const config = getBlockConfig(block);
+
+  // Debug logging - remove in production
+  // eslint-disable-next-line no-console
+  console.log('Weather block config:', config);
 
   // Clear existing content
   block.textContent = '';
