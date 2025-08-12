@@ -10,14 +10,14 @@ const WEATHER_SERVICES = {
     getParams: (location, apiKey, units) => ({
       q: location,
       appid: apiKey,
-      units: units,
+      units,
     }),
   },
   weatherapi: {
     baseUrl: 'https://api.weatherapi.com/v1',
     currentEndpoint: '/current.json',
     forecastEndpoint: '/forecast.json',
-    getParams: (location, apiKey, units) => ({
+    getParams: (location, apiKey) => ({
       key: apiKey,
       q: location,
       aqi: 'no',
@@ -49,78 +49,16 @@ function buildUrl(baseUrl, endpoint, params) {
 }
 
 /**
- * Fetch weather data from the selected provider
- */
-async function fetchWeatherData(provider, location, apiKey, units, showForecast = false) {
-  const service = WEATHER_SERVICES[provider];
-  if (!service) {
-    throw new Error(`Unsupported weather provider: ${provider}`);
-  }
-
-  try {
-    let weatherData = {};
-
-    if (provider === 'openweathermap') {
-      const currentParams = service.getParams(location, apiKey, units);
-      const currentUrl = buildUrl(service.baseUrl, service.currentEndpoint, currentParams);
-      const currentResponse = await fetch(currentUrl);
-      
-      if (!currentResponse.ok) {
-        throw new Error(`Weather API error: ${currentResponse.status} ${currentResponse.statusText}`);
-      }
-      
-      const currentData = await currentResponse.json();
-      weatherData.current = normalizeOpenWeatherMapData(currentData, units);
-
-      if (showForecast) {
-        const forecastUrl = buildUrl(service.baseUrl, service.forecastEndpoint, currentParams);
-        const forecastResponse = await fetch(forecastUrl);
-        
-        if (forecastResponse.ok) {
-          const forecastData = await forecastResponse.json();
-          weatherData.forecast = normalizeOpenWeatherMapForecast(forecastData, units);
-        }
-      }
-    } else if (provider === 'weatherapi') {
-      const params = service.getParams(location, apiKey, units);
-      if (showForecast) {
-        params.days = 5;
-        const url = buildUrl(service.baseUrl, service.forecastEndpoint, params);
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error(`Weather API error: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        weatherData.current = normalizeWeatherApiData(data.current, data.location);
-        weatherData.forecast = normalizeWeatherApiForecast(data.forecast);
-      } else {
-        const url = buildUrl(service.baseUrl, service.currentEndpoint, params);
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error(`Weather API error: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        weatherData.current = normalizeWeatherApiData(data.current, data.location);
-      }
-    }
-
-    return weatherData;
-  } catch (error) {
-    console.error('Error fetching weather data:', error);
-    throw error;
-  }
-}
-
-/**
  * Normalize OpenWeatherMap current weather data
  */
 function normalizeOpenWeatherMapData(data, units) {
-  const tempUnit = units === 'imperial' ? '°F' : units === 'metric' ? '°C' : 'K';
-  
+  let tempUnit = '°C';
+  if (units === 'imperial') {
+    tempUnit = '°F';
+  } else if (units === 'standard') {
+    tempUnit = 'K';
+  }
+
   return {
     location: data.name,
     country: data.sys.country,
@@ -139,9 +77,14 @@ function normalizeOpenWeatherMapData(data, units) {
  * Normalize OpenWeatherMap forecast data
  */
 function normalizeOpenWeatherMapForecast(data, units) {
-  const tempUnit = units === 'imperial' ? '°F' : units === 'metric' ? '°C' : 'K';
-  
-  return data.list.slice(0, 5).map(item => ({
+  let tempUnit = '°C';
+  if (units === 'imperial') {
+    tempUnit = '°F';
+  } else if (units === 'standard') {
+    tempUnit = 'K';
+  }
+
+  return data.list.slice(0, 5).map((item) => ({
     date: new Date(item.dt * 1000).toLocaleDateString(),
     temperature: Math.round(item.main.temp),
     tempUnit,
@@ -172,7 +115,7 @@ function normalizeWeatherApiData(current, location) {
  * Normalize WeatherAPI forecast data
  */
 function normalizeWeatherApiForecast(forecast) {
-  return forecast.forecastday.map(day => ({
+  return forecast.forecastday.map((day) => ({
     date: new Date(day.date).toLocaleDateString(),
     temperature: Math.round(day.day.avgtemp_c),
     tempUnit: '°C',
@@ -182,11 +125,79 @@ function normalizeWeatherApiForecast(forecast) {
 }
 
 /**
+ * Fetch weather data from the selected provider
+ */
+async function fetchWeatherData(provider, location, apiKey, units, showForecast = false) {
+  const service = WEATHER_SERVICES[provider];
+  if (!service) {
+    throw new Error(`Unsupported weather provider: ${provider}`);
+  }
+
+  try {
+    const weatherData = {};
+
+    if (provider === 'openweathermap') {
+      const currentParams = service.getParams(location, apiKey, units);
+      const currentUrl = buildUrl(service.baseUrl, service.currentEndpoint, currentParams);
+      const currentResponse = await fetch(currentUrl);
+
+      if (!currentResponse.ok) {
+        throw new Error(`Weather API error: ${currentResponse.status} ${currentResponse.statusText}`);
+      }
+
+      const currentData = await currentResponse.json();
+      weatherData.current = normalizeOpenWeatherMapData(currentData, units);
+
+      if (showForecast) {
+        const forecastUrl = buildUrl(service.baseUrl, service.forecastEndpoint, currentParams);
+        const forecastResponse = await fetch(forecastUrl);
+
+        if (forecastResponse.ok) {
+          const forecastData = await forecastResponse.json();
+          weatherData.forecast = normalizeOpenWeatherMapForecast(forecastData, units);
+        }
+      }
+    } else if (provider === 'weatherapi') {
+      const params = service.getParams(location, apiKey, units);
+      if (showForecast) {
+        params.days = 5;
+        const url = buildUrl(service.baseUrl, service.forecastEndpoint, params);
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Weather API error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        weatherData.current = normalizeWeatherApiData(data.current, data.location);
+        weatherData.forecast = normalizeWeatherApiForecast(data.forecast);
+      } else {
+        const url = buildUrl(service.baseUrl, service.currentEndpoint, params);
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Weather API error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        weatherData.current = normalizeWeatherApiData(data.current, data.location);
+      }
+    }
+
+    return weatherData;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching weather data:', error);
+    throw error;
+  }
+}
+
+/**
  * Create weather display HTML
  */
 function createWeatherDisplay(weatherData, theme) {
   const { current, forecast } = weatherData;
-  
+
   const weatherContainer = document.createElement('div');
   weatherContainer.className = `weather-container weather-theme-${theme}`;
 
@@ -229,7 +240,7 @@ function createWeatherDisplay(weatherData, theme) {
   if (forecast && forecast.length > 0) {
     const forecastContainer = document.createElement('div');
     forecastContainer.className = 'weather-forecast';
-    
+
     const forecastTitle = document.createElement('h4');
     forecastTitle.textContent = '5-Day Forecast';
     forecastContainer.appendChild(forecastTitle);
@@ -237,7 +248,7 @@ function createWeatherDisplay(weatherData, theme) {
     const forecastList = document.createElement('div');
     forecastList.className = 'weather-forecast-list';
 
-    forecast.forEach(day => {
+    forecast.forEach((day) => {
       const dayElement = document.createElement('div');
       dayElement.className = 'weather-forecast-day';
       dayElement.innerHTML = `
@@ -302,10 +313,10 @@ function getBlockConfig(block) {
  */
 export default async function decorate(block) {
   const config = getBlockConfig(block);
-  
+
   // Clear existing content
   block.textContent = '';
-  
+
   // Show loading state
   const loadingDisplay = createLoadingDisplay();
   block.appendChild(loadingDisplay);
@@ -326,7 +337,7 @@ export default async function decorate(block) {
       config.location,
       config.apiKey,
       config.units,
-      config.showForecast
+      config.showForecast,
     );
 
     // Remove loading display
@@ -336,10 +347,10 @@ export default async function decorate(block) {
     const weatherDisplay = createWeatherDisplay(weatherData, config.theme);
     moveInstrumentation(block, weatherDisplay);
     block.appendChild(weatherDisplay);
-
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Weather block error:', error);
-    
+
     // Remove loading display
     if (loadingDisplay.parentNode) {
       block.removeChild(loadingDisplay);
