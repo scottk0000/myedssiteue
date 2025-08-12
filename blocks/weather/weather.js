@@ -13,14 +13,14 @@ const WEATHER_SERVICES = {
         appid: apiKey,
         units,
       };
-      
+
       // Check if location is a zip code pattern (5 digits or zip,country)
       if (/^\d{5}(,\w{2})?$/.test(location.trim())) {
         params.zip = location;
       } else {
         params.q = location;
       }
-      
+
       return params;
     },
   },
@@ -311,11 +311,11 @@ function createLoadingDisplay() {
 function getBlockConfig(block) {
   // First try to read from block content (standard AEM approach)
   const blockConfig = readBlockConfig(block);
-  
+
   // Debug logging - remove in production
   // eslint-disable-next-line no-console
   console.log('Raw blockConfig:', blockConfig);
-  
+
   // Map the Universal Editor field names to our config
   const config = {
     location: blockConfig.location || block.getAttribute('data-location') || 'New York',
@@ -325,7 +325,7 @@ function getBlockConfig(block) {
     showForecast: (blockConfig.showforecast || blockConfig['show-forecast'] || block.getAttribute('data-show-forecast')) === 'true',
     theme: blockConfig.theme || block.getAttribute('data-theme') || 'default',
   };
-  
+
   return config;
 }
 
