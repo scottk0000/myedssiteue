@@ -326,16 +326,36 @@ function getBlockConfig(block) {
   // eslint-disable-next-line no-console
   console.log('Raw blockConfig:', blockConfig);
 
-  // Map the Universal Editor field names to our config
-  // Note: toClassName converts camelCase to lowercase
-  // so apiKey becomes apikey, showForecast becomes showforecast
+  // If readBlockConfig didn't work, try to extract values by position
+  // based on the field order in _weather.json
+  const extractedConfig = {};
+  if (Object.keys(blockConfig).length === 0 && block.children.length > 0) {
+    const rows = [...block.children];
+    const values = rows.map((row) => {
+      const cell = row.querySelector('p');
+      return cell ? cell.textContent.trim() : '';
+    });
+
+    // Map values by position - Universal Editor seems to only output configured fields
+    // Based on your configuration: location, provider, apiKey, showForecast
+    if (values.length > 0) extractedConfig.location = values[0] || '';
+    if (values.length > 1) extractedConfig.provider = values[1] || '';
+    if (values.length > 2) extractedConfig.apiKey = values[2] || '';
+    if (values.length > 3) extractedConfig.showForecast = values[3] || '';
+    // Note: units and theme may not be present if not explicitly configured
+
+    // eslint-disable-next-line no-console
+    console.log('Extracted config by position:', extractedConfig);
+  }
+
+  // Map the configuration values with fallbacks
   const config = {
-    location: blockConfig.location || block.getAttribute('data-location') || 'New York',
-    provider: blockConfig.provider || block.getAttribute('data-provider') || 'openweathermap',
-    apiKey: blockConfig.apikey || blockConfig.apiKey || block.getAttribute('data-api-key') || '',
-    units: blockConfig.units || block.getAttribute('data-units') || 'metric',
-    showForecast: (blockConfig.showforecast || blockConfig.showForecast || block.getAttribute('data-show-forecast')) === 'true',
-    theme: blockConfig.theme || block.getAttribute('data-theme') || 'default',
+    location: blockConfig.location || extractedConfig.location || block.getAttribute('data-location') || 'New York',
+    provider: blockConfig.provider || extractedConfig.provider || block.getAttribute('data-provider') || 'openweathermap',
+    apiKey: blockConfig.apikey || blockConfig.apiKey || extractedConfig.apiKey || block.getAttribute('data-api-key') || '',
+    units: blockConfig.units || extractedConfig.units || block.getAttribute('data-units') || 'metric',
+    showForecast: (blockConfig.showforecast || blockConfig.showForecast || extractedConfig.showForecast || block.getAttribute('data-show-forecast')) === 'true',
+    theme: blockConfig.theme || extractedConfig.theme || block.getAttribute('data-theme') || 'default',
   };
 
   return config;
