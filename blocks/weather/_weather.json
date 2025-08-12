@@ -1,0 +1,113 @@
+{
+  "definitions": [
+    {
+      "title": "Weather",
+      "id": "weather",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Weather",
+              "model": "weather"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "weather",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "location",
+          "label": "City or Zip Code",
+          "value": "New York",
+          "description": "Enter a city name or zip code (e.g., 'New York' or '10001')"
+        },
+        {
+          "component": "select",
+          "name": "provider",
+          "label": "Weather Provider",
+          "value": "openweathermap",
+          "options": [
+            {
+              "name": "OpenWeatherMap",
+              "value": "openweathermap"
+            },
+            {
+              "name": "WeatherAPI",
+              "value": "weatherapi"
+            },
+            {
+              "name": "AccuWeather",
+              "value": "accuweather"
+            }
+          ]
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "apiKey",
+          "label": "API Key",
+          "value": "",
+          "description": "Enter your weather service API key"
+        },
+        {
+          "component": "select",
+          "name": "units",
+          "label": "Temperature Units",
+          "value": "metric",
+          "options": [
+            {
+              "name": "Celsius",
+              "value": "metric"
+            },
+            {
+              "name": "Fahrenheit",
+              "value": "imperial"
+            },
+            {
+              "name": "Kelvin",
+              "value": "standard"
+            }
+          ]
+        },
+        {
+          "component": "boolean",
+          "name": "showForecast",
+          "label": "Show 5-Day Forecast",
+          "value": false
+        },
+        {
+          "component": "select",
+          "name": "theme",
+          "label": "Display Theme",
+          "value": "default",
+          "options": [
+            {
+              "name": "Default",
+              "value": "default"
+            },
+            {
+              "name": "Dark",
+              "value": "dark"
+            },
+            {
+              "name": "Minimal",
+              "value": "minimal"
+            },
+            {
+              "name": "Card",
+              "value": "card"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

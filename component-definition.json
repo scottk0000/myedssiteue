@@ -190,6 +190,27 @@
               }
             }
           }
+        },
+        {
+          "title": "Weather",
+          "id": "weather",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block",
+                "template": {
+                  "name": "Weather",
+                  "model": "weather",
+                  "location": "New York",
+                  "provider": "openweathermap",
+                  "apiKey": "",
+                  "units": "metric",
+                  "showForecast": false,
+                  "theme": "default"
+                }
+              }
+            }
+          }
         }
       ]
     }
