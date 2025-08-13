@@ -26,8 +26,8 @@ const WEATHER_SERVICES = {
   },
   weatherapi: {
     baseUrl: 'https://api.weatherapi.com/v1',
-    currentEndpoint: '/current.json',
-    forecastEndpoint: '/forecast.json',
+    currentEndpoint: 'current.json',
+    forecastEndpoint: 'forecast.json',
     getParams: (location, apiKey) => ({
       key: apiKey,
       q: location,
