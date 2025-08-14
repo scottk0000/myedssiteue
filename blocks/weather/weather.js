@@ -25,7 +25,7 @@ const WEATHER_SERVICES = {
     },
   },
   weatherapi: {
-    baseUrl: 'https://api.weatherapi.com/v1/',
+    baseUrl: 'https://258616-skweatherproxy-stage.adobeio-static.net/api/v1/web/weather-proxy/get-weather',
     currentEndpoint: 'current.json',
     forecastEndpoint: 'forecast.json',
     getParams: (location, apiKey) => ({
@@ -337,10 +337,10 @@ function getBlockConfig(block) {
     });
 
     // Map values by position - Universal Editor seems to only output configured fields
-    // Based on your configuration: location, provider, apiKey, showForecast
+    // Based on your configuration: location, provider, units, showForecast
     if (values.length > 0) extractedConfig.location = values[0] || '';
     if (values.length > 1) extractedConfig.provider = values[1] || '';
-    if (values.length > 2) extractedConfig.apiKey = values[2] || '';
+    if (values.length > 2) extractedConfig.units = values[2] || '';
     if (values.length > 3) extractedConfig.showForecast = values[3] || '';
     // Note: units and theme may not be present if not explicitly configured
 
@@ -352,7 +352,9 @@ function getBlockConfig(block) {
   const config = {
     location: blockConfig.location || extractedConfig.location || block.getAttribute('data-location') || 'New York',
     provider: blockConfig.provider || extractedConfig.provider || block.getAttribute('data-provider') || 'openweathermap',
-    apiKey: blockConfig.apikey || blockConfig.apiKey || extractedConfig.apiKey || block.getAttribute('data-api-key') || '',
+    // apiKey is no longer required from Universal Editor or block attributes
+    apiKey: '',
+    // Support units selection (C/F) from Universal Editor or block attributes
     units: blockConfig.units || extractedConfig.units || block.getAttribute('data-units') || 'metric',
     showForecast: (blockConfig.showforecast || blockConfig.showForecast || extractedConfig.showForecast || block.getAttribute('data-show-forecast')) === 'true',
     theme: blockConfig.theme || extractedConfig.theme || block.getAttribute('data-theme') || 'default',

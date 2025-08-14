@@ -32,7 +32,7 @@
           "component": "select",
           "name": "provider",
           "label": "Weather Provider",
-          "value": "openweathermap",
+          "value": "weatherapi",
           "options": [
             {
               "name": "OpenWeatherMap",
@@ -47,14 +47,6 @@
               "value": "accuweather"
             }
           ]
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "apiKey",
-          "label": "API Key",
-          "value": "",
-          "description": "Enter your weather service API key"
         },
         {
           "component": "select",
