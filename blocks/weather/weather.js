@@ -386,11 +386,6 @@ export default async function decorate(block) {
   block.appendChild(loadingDisplay);
 
   try {
-    // Validate configuration
-    if (!config.apiKey) {
-      throw new Error('API key is required. Please configure your weather service API key.');
-    }
-
     if (!config.location) {
       throw new Error('Location is required. Please specify a city or zip code.');
     }
