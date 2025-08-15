@@ -2,6 +2,7 @@
 .weather {
   font-family: var(--body-font-family);
   margin: 1rem 0;
+
   /* Smooth transition when content changes */
   transition: opacity 0.2s ease-in-out;
 }
