@@ -162,8 +162,9 @@ function normalizeWeatherApiForecast(forecast, units = 'metric') {
 async function fetchWeatherData(provider, location, apiKey, units, showForecast = false) {
   // Debug: Log function entry
   // eslint-disable-next-line no-console
-  console.log('fetchWeatherData called with:', { provider, location, units, showForecast });
-  
+  console.log('fetchWeatherData called with:', {
+    provider, location, units, showForecast,
+  });
   const service = WEATHER_SERVICES[provider];
   if (!service) {
     throw new Error(`Unsupported weather provider: ${provider}`);
@@ -198,14 +199,12 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
       // Debug: Log API parameters
       // eslint-disable-next-line no-console
       console.log('WeatherAPI params:', params);
-      
       if (showForecast) {
         params.days = 5;
         const url = buildUrl(service.baseUrl, service.forecastEndpoint, params);
         // Debug: Log API URL
         // eslint-disable-next-line no-console
         console.log('WeatherAPI forecast URL:', url);
-        
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -216,7 +215,6 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         // Debug: Log API response
         // eslint-disable-next-line no-console
         console.log('WeatherAPI forecast response:', data);
-        
         // Use units from response if available, otherwise fall back to the requested units
         const responseUnits = data.units || units;
         weatherData.current = normalizeWeatherApiData(data.current, data.location, responseUnits);
@@ -226,7 +224,6 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         // Debug: Log API URL
         // eslint-disable-next-line no-console
         console.log('WeatherAPI current URL:', url);
-        
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -237,7 +234,6 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         // Debug: Log API response
         // eslint-disable-next-line no-console
         console.log('WeatherAPI current response:', data);
-        
         // Use units from response if available, otherwise fall back to the requested units
         const responseUnits = data.units || units;
         weatherData.current = normalizeWeatherApiData(data.current, data.location, responseUnits);
@@ -477,18 +473,17 @@ export default async function decorate(block) {
 
     // Create and append weather display
     const weatherDisplay = createWeatherDisplay(weatherData, config.theme);
-    
+
     // Debug: Log weather display creation
     // eslint-disable-next-line no-console
     console.log('Weather display created:', weatherDisplay);
-    
+
     moveInstrumentation(block, weatherDisplay);
     block.appendChild(weatherDisplay);
-    
+
     // Debug: Log final block content
     // eslint-disable-next-line no-console
     console.log('Weather block final content:', block.innerHTML);
-    
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Weather block error:', error);
@@ -503,7 +498,7 @@ export default async function decorate(block) {
     // Show error display
     const errorDisplay = createErrorDisplay(error.message);
     block.appendChild(errorDisplay);
-    
+
     // Debug: Log error display
     // eslint-disable-next-line no-console
     console.log('Error display created:', errorDisplay);
