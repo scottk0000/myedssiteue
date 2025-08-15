@@ -41,6 +41,10 @@ async function applyChanges(event) {
   const parsedUpdate = new DOMParser().parseFromString(sanitizedContent, 'text/html');
   const element = document.querySelector(`[data-aue-resource="${resource}"]`);
 
+  // Debug: Log element detection
+  // eslint-disable-next-line no-console
+  console.log('Found element for resource:', resource, element);
+
   if (element) {
     if (element.matches('main')) {
       const newMain = parsedUpdate.querySelector(`[data-aue-resource="${resource}"]`);
@@ -56,7 +60,18 @@ async function applyChanges(event) {
       return true;
     }
 
-    const block = element.parentElement?.closest('.block[data-aue-resource]') || element?.closest('.block[data-aue-resource]');
+    // Check if the element itself is a block, or find a parent block
+    const block = element.matches('.block[data-aue-resource]')
+      ? element
+      : (element.parentElement?.closest('.block[data-aue-resource]') || element?.closest('.block[data-aue-resource]'));
+
+    // Debug: Log block detection
+    // eslint-disable-next-line no-console
+    console.log('Element matches .block:', element.matches('.block'));
+    // eslint-disable-next-line no-console
+    console.log('Element has data-aue-resource:', element.hasAttribute('data-aue-resource'));
+    // eslint-disable-next-line no-console
+    console.log('Block found:', block);
     if (block) {
       const blockResource = block.getAttribute('data-aue-resource');
       // Debug: Log block update
