@@ -60,10 +60,16 @@ async function applyChanges(event) {
       return true;
     }
 
-    // Check if the element itself is a block, or find a parent block
-    const block = element.matches('.block[data-aue-resource]')
-      ? element
-      : (element.parentElement?.closest('.block[data-aue-resource]') || element?.closest('.block[data-aue-resource]'));
+    // The element might be the weather-container inside the block due to moveInstrumentation
+    // We need to find the actual .block element that contains this element
+    let block = null;
+    if (element.matches('.block')) {
+      // Element is the block itself
+      block = element;
+    } else {
+      // Element is inside a block (like weather-container), find the parent block
+      block = element.closest('.block');
+    }
 
     // Debug: Log block detection
     // eslint-disable-next-line no-console
@@ -71,12 +77,17 @@ async function applyChanges(event) {
     // eslint-disable-next-line no-console
     console.log('Element has data-aue-resource:', element.hasAttribute('data-aue-resource'));
     // eslint-disable-next-line no-console
+    console.log('Element closest .block:', element.closest('.block'));
+    // eslint-disable-next-line no-console
     console.log('Block found:', block);
     if (block) {
-      const blockResource = block.getAttribute('data-aue-resource');
+      // The resource might be on the element (weather-container) or the block itself
+      const blockResource = block.getAttribute('data-aue-resource') || resource;
       // Debug: Log block update
       // eslint-disable-next-line no-console
       console.log('Found block to update:', blockResource, block);
+      // eslint-disable-next-line no-console
+      console.log('Using resource:', blockResource);
 
       const newBlock = parsedUpdate.querySelector(`[data-aue-resource="${blockResource}"]`);
       if (newBlock) {
