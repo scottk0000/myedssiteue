@@ -15,6 +15,10 @@ async function applyChanges(event) {
   // redecorate default content and blocks on patches (in the properties rail)
   const { detail } = event;
 
+  // Debug: Log Universal Editor events
+  // eslint-disable-next-line no-console
+  console.log('Universal Editor event:', event.type, detail);
+
   const resource = detail?.request?.target?.resource // update, patch components
     || detail?.request?.target?.container?.resource // update, patch, add to sections
     || detail?.request?.to?.container?.resource; // move in sections
@@ -23,6 +27,12 @@ async function applyChanges(event) {
   if (!updates.length) return false;
   const { content } = updates[0];
   if (!content) return false;
+
+  // Debug: Log what's being updated
+  // eslint-disable-next-line no-console
+  console.log('Universal Editor updating resource:', resource);
+  // eslint-disable-next-line no-console
+  console.log('Update content:', content);
 
   // load dompurify
   await loadScript(`${window.hlx.codeBasePath}/scripts/dompurify.min.js`);
@@ -49,13 +59,24 @@ async function applyChanges(event) {
     const block = element.parentElement?.closest('.block[data-aue-resource]') || element?.closest('.block[data-aue-resource]');
     if (block) {
       const blockResource = block.getAttribute('data-aue-resource');
+      // Debug: Log block update
+      // eslint-disable-next-line no-console
+      console.log('Found block to update:', blockResource, block);
+
       const newBlock = parsedUpdate.querySelector(`[data-aue-resource="${blockResource}"]`);
       if (newBlock) {
+        // Debug: Log block replacement
+        // eslint-disable-next-line no-console
+        console.log('Replacing block with new content:', newBlock);
+
         newBlock.style.display = 'none';
         block.insertAdjacentElement('afterend', newBlock);
 
         // Reset block status to force re-decoration
         delete newBlock.dataset.blockStatus;
+        // Debug: Log status reset
+        // eslint-disable-next-line no-console
+        console.log('Reset block status, about to decorate');
 
         decorateButtons(newBlock);
         decorateIcons(newBlock);
@@ -64,8 +85,15 @@ async function applyChanges(event) {
         await loadBlock(newBlock);
         block.remove();
         newBlock.style.display = null;
+
+        // Debug: Log completion
+        // eslint-disable-next-line no-console
+        console.log('Block replacement complete');
         return true;
       }
+      // Debug: Log if no new block found
+      // eslint-disable-next-line no-console
+      console.log('No new block found in parsed update for resource:', blockResource);
     } else {
       // sections and default content, may be multiple in the case of richtext
       const newElements = parsedUpdate.querySelectorAll(`[data-aue-resource="${resource}"],[data-richtext-resource="${resource}"]`);
