@@ -15,10 +15,6 @@ async function applyChanges(event) {
   // redecorate default content and blocks on patches (in the properties rail)
   const { detail } = event;
 
-  // Debug: Log Universal Editor events
-  // eslint-disable-next-line no-console
-  console.log('Universal Editor event:', event.type, detail);
-
   const resource = detail?.request?.target?.resource // update, patch components
     || detail?.request?.target?.container?.resource // update, patch, add to sections
     || detail?.request?.to?.container?.resource; // move in sections
@@ -28,22 +24,12 @@ async function applyChanges(event) {
   const { content } = updates[0];
   if (!content) return false;
 
-  // Debug: Log what's being updated
-  // eslint-disable-next-line no-console
-  console.log('Universal Editor updating resource:', resource);
-  // eslint-disable-next-line no-console
-  console.log('Update content:', content);
-
   // load dompurify
   await loadScript(`${window.hlx.codeBasePath}/scripts/dompurify.min.js`);
 
   const sanitizedContent = window.DOMPurify.sanitize(content, { USE_PROFILES: { html: true } });
   const parsedUpdate = new DOMParser().parseFromString(sanitizedContent, 'text/html');
   const element = document.querySelector(`[data-aue-resource="${resource}"]`);
-
-  // Debug: Log element detection
-  // eslint-disable-next-line no-console
-  console.log('Found element for resource:', resource, element);
 
   if (element) {
     if (element.matches('main')) {
@@ -70,39 +56,17 @@ async function applyChanges(event) {
       // Element is inside a block (like weather-container), find the parent block
       block = element.closest('.block');
     }
-
-    // Debug: Log block detection
-    // eslint-disable-next-line no-console
-    console.log('Element matches .block:', element.matches('.block'));
-    // eslint-disable-next-line no-console
-    console.log('Element has data-aue-resource:', element.hasAttribute('data-aue-resource'));
-    // eslint-disable-next-line no-console
-    console.log('Element closest .block:', element.closest('.block'));
-    // eslint-disable-next-line no-console
-    console.log('Block found:', block);
     if (block) {
       // The resource might be on the element (weather-container) or the block itself
       const blockResource = block.getAttribute('data-aue-resource') || resource;
-      // Debug: Log block update
-      // eslint-disable-next-line no-console
-      console.log('Found block to update:', blockResource, block);
-      // eslint-disable-next-line no-console
-      console.log('Using resource:', blockResource);
 
       const newBlock = parsedUpdate.querySelector(`[data-aue-resource="${blockResource}"]`);
       if (newBlock) {
-        // Debug: Log block replacement
-        // eslint-disable-next-line no-console
-        console.log('Replacing block with new content:', newBlock);
-
         newBlock.style.display = 'none';
         block.insertAdjacentElement('afterend', newBlock);
 
         // Reset block status to force re-decoration
         delete newBlock.dataset.blockStatus;
-        // Debug: Log status reset
-        // eslint-disable-next-line no-console
-        console.log('Reset block status, about to decorate');
 
         decorateButtons(newBlock);
         decorateIcons(newBlock);
@@ -111,15 +75,8 @@ async function applyChanges(event) {
         await loadBlock(newBlock);
         block.remove();
         newBlock.style.display = null;
-
-        // Debug: Log completion
-        // eslint-disable-next-line no-console
-        console.log('Block replacement complete');
         return true;
       }
-      // Debug: Log if no new block found
-      // eslint-disable-next-line no-console
-      console.log('No new block found in parsed update for resource:', blockResource);
     } else {
       // sections and default content, may be multiple in the case of richtext
       const newElements = parsedUpdate.querySelectorAll(`[data-aue-resource="${resource}"],[data-richtext-resource="${resource}"]`);

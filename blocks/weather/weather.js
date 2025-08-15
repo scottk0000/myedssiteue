@@ -160,11 +160,6 @@ function normalizeWeatherApiForecast(forecast, units = 'metric') {
  * Fetch weather data from the selected provider
  */
 async function fetchWeatherData(provider, location, apiKey, units, showForecast = false) {
-  // Debug: Log function entry
-  // eslint-disable-next-line no-console
-  console.log('fetchWeatherData called with:', {
-    provider, location, units, showForecast,
-  });
   const service = WEATHER_SERVICES[provider];
   if (!service) {
     throw new Error(`Unsupported weather provider: ${provider}`);
@@ -196,15 +191,9 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
       }
     } else if (provider === 'weatherapi') {
       const params = service.getParams(location, units);
-      // Debug: Log API parameters
-      // eslint-disable-next-line no-console
-      console.log('WeatherAPI params:', params);
       if (showForecast) {
         params.days = 5;
         const url = buildUrl(service.baseUrl, service.forecastEndpoint, params);
-        // Debug: Log API URL
-        // eslint-disable-next-line no-console
-        console.log('WeatherAPI forecast URL:', url);
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -212,18 +201,12 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         }
 
         const data = await response.json();
-        // Debug: Log API response
-        // eslint-disable-next-line no-console
-        console.log('WeatherAPI forecast response:', data);
         // Use units from response if available, otherwise fall back to the requested units
         const responseUnits = data.units || units;
         weatherData.current = normalizeWeatherApiData(data.current, data.location, responseUnits);
         weatherData.forecast = normalizeWeatherApiForecast(data.forecast, responseUnits);
       } else {
         const url = buildUrl(service.baseUrl, service.currentEndpoint, params);
-        // Debug: Log API URL
-        // eslint-disable-next-line no-console
-        console.log('WeatherAPI current URL:', url);
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -231,9 +214,6 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         }
 
         const data = await response.json();
-        // Debug: Log API response
-        // eslint-disable-next-line no-console
-        console.log('WeatherAPI current response:', data);
         // Use units from response if available, otherwise fall back to the requested units
         const responseUnits = data.units || units;
         weatherData.current = normalizeWeatherApiData(data.current, data.location, responseUnits);
@@ -354,22 +334,8 @@ function createLoadingDisplay() {
  * Get configuration from block content or attributes
  */
 function getBlockConfig(block) {
-  // Debug logging - see the block structure
-  // eslint-disable-next-line no-console
-  console.log('Block element:', block);
-  // eslint-disable-next-line no-console
-  console.log('Block innerHTML:', block.innerHTML);
-  // eslint-disable-next-line no-console
-  console.log('Block children:', block.children);
-  // eslint-disable-next-line no-console
-  console.log('Block attributes:', [...block.attributes].map((attr) => `${attr.name}="${attr.value}"`));
-
   // First try to read from block content (standard AEM approach)
   const blockConfig = readBlockConfig(block);
-
-  // Debug logging - remove in production
-  // eslint-disable-next-line no-console
-  console.log('Raw blockConfig:', blockConfig);
 
   // If readBlockConfig didn't work, try to extract values by position
   // based on the field order in _weather.json
@@ -388,9 +354,6 @@ function getBlockConfig(block) {
     if (values.length > 2) extractedConfig.units = values[2] || '';
     if (values.length > 3) extractedConfig.showForecast = values[3] || '';
     // Note: units and theme may not be present if not explicitly configured
-
-    // eslint-disable-next-line no-console
-    console.log('Extracted config by position:', extractedConfig);
   }
 
   // Map the configuration values with fallbacks
@@ -412,20 +375,8 @@ function getBlockConfig(block) {
  * Main decoration function
  */
 export default async function decorate(block) {
-  // Debug logging - check if decoration is being called
-  // eslint-disable-next-line no-console
-  console.log('Weather block decorate() called', block);
-  // eslint-disable-next-line no-console
-  console.log('Block status:', block.dataset.blockStatus);
-  // eslint-disable-next-line no-console
-  console.log('Block innerHTML before config read:', block.innerHTML);
-
   // Read config first, before clearing content
   const config = getBlockConfig(block);
-
-  // Debug logging - remove in production
-  // eslint-disable-next-line no-console
-  console.log('Weather block config:', config);
 
   // Immediately clear content after reading config to prevent flash of raw values
   block.innerHTML = '';
@@ -439,16 +390,6 @@ export default async function decorate(block) {
       throw new Error('Location is required. Please specify a city or zip code.');
     }
 
-    // Debug: Log API call parameters
-    // eslint-disable-next-line no-console
-    console.log('About to call fetchWeatherData with:', {
-      provider: config.provider,
-      location: config.location,
-      apiKey: config.apiKey ? 'SET' : 'NOT SET',
-      units: config.units,
-      showForecast: config.showForecast,
-    });
-
     // Fetch weather data
     const weatherData = await fetchWeatherData(
       config.provider,
@@ -458,14 +399,6 @@ export default async function decorate(block) {
       config.showForecast,
     );
 
-    // Debug: Log API response
-    // eslint-disable-next-line no-console
-    console.log('Weather data received:', weatherData);
-
-    // Debug: Log before removing loading display
-    // eslint-disable-next-line no-console
-    console.log('About to remove loading display and create weather display');
-
     // Remove loading display
     if (loadingDisplay.parentNode) {
       block.removeChild(loadingDisplay);
@@ -473,22 +406,11 @@ export default async function decorate(block) {
 
     // Create and append weather display
     const weatherDisplay = createWeatherDisplay(weatherData, config.theme);
-
-    // Debug: Log weather display creation
-    // eslint-disable-next-line no-console
-    console.log('Weather display created:', weatherDisplay);
-
     moveInstrumentation(block, weatherDisplay);
     block.appendChild(weatherDisplay);
-
-    // Debug: Log final block content
-    // eslint-disable-next-line no-console
-    console.log('Weather block final content:', block.innerHTML);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Weather block error:', error);
-    // eslint-disable-next-line no-console
-    console.error('Error stack:', error.stack);
 
     // Remove loading display
     if (loadingDisplay.parentNode) {
@@ -498,9 +420,5 @@ export default async function decorate(block) {
     // Show error display
     const errorDisplay = createErrorDisplay(error.message);
     block.appendChild(errorDisplay);
-
-    // Debug: Log error display
-    // eslint-disable-next-line no-console
-    console.log('Error display created:', errorDisplay);
   }
 }
