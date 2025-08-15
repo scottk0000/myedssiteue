@@ -53,6 +53,10 @@ async function applyChanges(event) {
       if (newBlock) {
         newBlock.style.display = 'none';
         block.insertAdjacentElement('afterend', newBlock);
+
+        // Reset block status to force re-decoration
+        delete newBlock.dataset.blockStatus;
+
         decorateButtons(newBlock);
         decorateIcons(newBlock);
         decorateBlock(newBlock);

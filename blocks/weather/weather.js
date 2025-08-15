@@ -392,6 +392,14 @@ function getBlockConfig(block) {
  * Main decoration function
  */
 export default async function decorate(block) {
+  // Debug logging - check if decoration is being called
+  // eslint-disable-next-line no-console
+  console.log('Weather block decorate() called', block);
+  // eslint-disable-next-line no-console
+  console.log('Block status:', block.dataset.blockStatus);
+  // eslint-disable-next-line no-console
+  console.log('Block innerHTML before config read:', block.innerHTML);
+
   // Read config first, before clearing content
   const config = getBlockConfig(block);
 
