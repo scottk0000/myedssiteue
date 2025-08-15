@@ -25,9 +25,9 @@ const WEATHER_SERVICES = {
     },
   },
   weatherapi: {
-    baseUrl: 'https://258616-skweatherproxy-stage.adobeio-static.net/api/v1/web/weather-proxy/get-weather',
-    currentEndpoint: 'current.json',
-    forecastEndpoint: 'forecast.json',
+    baseUrl: 'https://258616-skweatherproxy-stage.adobeioruntime.net/api/v1/web/weather-proxy/get-weather',
+    currentEndpoint: '/current.json',
+    forecastEndpoint: '/forecast.json',
     getParams: (location, apiKey) => ({
       key: apiKey,
       q: location,
