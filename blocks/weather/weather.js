@@ -392,26 +392,19 @@ function getBlockConfig(block) {
  * Main decoration function
  */
 export default async function decorate(block) {
+  // Read config first, before clearing content
   const config = getBlockConfig(block);
 
   // Debug logging - remove in production
   // eslint-disable-next-line no-console
   console.log('Weather block config:', config);
 
-  // Clear existing content - preserve the original content for debugging if needed
-  const originalContent = block.innerHTML;
-  block.textContent = '';
+  // Immediately clear content after reading config to prevent flash of raw values
+  block.innerHTML = '';
 
-  // Debug: log the original content that was cleared
-  // eslint-disable-next-line no-console
-  console.log('Original block content:', originalContent);
-
-  // Show loading state
+  // Show loading state immediately
   const loadingDisplay = createLoadingDisplay();
   block.appendChild(loadingDisplay);
-
-  // Make block visible now that we have loading content
-  block.classList.add('decorated');
 
   try {
     if (!config.location) {
