@@ -3,7 +3,13 @@
   font-family: var(--body-font-family);
   margin: 1rem 0;
 
-  /* Smooth transition when content changes */
+  /* Hide raw content until decorated */
+  visibility: hidden;
+}
+
+/* Show block only after decoration is complete */
+.weather.decorated {
+  visibility: visible;
   transition: opacity 0.2s ease-in-out;
 }
 
