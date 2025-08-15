@@ -28,8 +28,9 @@ const WEATHER_SERVICES = {
     baseUrl: 'https://258616-skweatherproxy-stage.adobeioruntime.net/api/v1/web/weather-proxy/get-weather',
     currentEndpoint: '/current.json',
     forecastEndpoint: '/forecast.json',
-    getParams: (location) => ({
+    getParams: (location, units) => ({
       q: location,
+      units,
     }),
   },
   accuweather: {
@@ -107,29 +108,49 @@ function normalizeOpenWeatherMapForecast(data, units) {
 /**
  * Normalize WeatherAPI current weather data
  */
-function normalizeWeatherApiData(current, location) {
+function normalizeWeatherApiData(current, location, units = 'metric') {
+  let tempUnit = '°C';
+  let temperature = Math.round(current.temp_c);
+  let feelsLike = Math.round(current.feelslike_c);
+  let windSpeed = current.wind_kph;
+  let pressure = current.pressure_mb;
+
+  if (units === 'imperial') {
+    tempUnit = '°F';
+    temperature = Math.round(current.temp_f);
+    feelsLike = Math.round(current.feelslike_f);
+    windSpeed = current.wind_mph;
+    pressure = current.pressure_in;
+  }
+
   return {
     location: location.name,
     country: location.country,
-    temperature: Math.round(current.temp_c),
-    tempUnit: '°C',
+    temperature,
+    tempUnit,
     description: current.condition.text,
     icon: current.condition.icon,
     humidity: current.humidity,
-    windSpeed: current.wind_kph,
-    pressure: current.pressure_mb,
-    feelsLike: Math.round(current.feelslike_c),
+    windSpeed,
+    pressure,
+    feelsLike,
   };
 }
 
 /**
  * Normalize WeatherAPI forecast data
  */
-function normalizeWeatherApiForecast(forecast) {
+function normalizeWeatherApiForecast(forecast, units = 'metric') {
+  let tempUnit = '°C';
+
+  if (units === 'imperial') {
+    tempUnit = '°F';
+  }
+
   return forecast.forecastday.map((day) => ({
     date: new Date(day.date).toLocaleDateString(),
-    temperature: Math.round(day.day.avgtemp_c),
-    tempUnit: '°C',
+    temperature: Math.round(units === 'imperial' ? day.day.avgtemp_f : day.day.avgtemp_c),
+    tempUnit,
     description: day.day.condition.text,
     icon: day.day.condition.icon,
   }));
@@ -169,7 +190,7 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         }
       }
     } else if (provider === 'weatherapi') {
-      const params = service.getParams(location);
+      const params = service.getParams(location, units);
       if (showForecast) {
         params.days = 5;
         const url = buildUrl(service.baseUrl, service.forecastEndpoint, params);
@@ -180,8 +201,10 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         }
 
         const data = await response.json();
-        weatherData.current = normalizeWeatherApiData(data.current, data.location);
-        weatherData.forecast = normalizeWeatherApiForecast(data.forecast);
+        // Use units from response if available, otherwise fall back to the requested units
+        const responseUnits = data.units || units;
+        weatherData.current = normalizeWeatherApiData(data.current, data.location, responseUnits);
+        weatherData.forecast = normalizeWeatherApiForecast(data.forecast, responseUnits);
       } else {
         const url = buildUrl(service.baseUrl, service.currentEndpoint, params);
         const response = await fetch(url);
@@ -191,7 +214,9 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         }
 
         const data = await response.json();
-        weatherData.current = normalizeWeatherApiData(data.current, data.location);
+        // Use units from response if available, otherwise fall back to the requested units
+        const responseUnits = data.units || units;
+        weatherData.current = normalizeWeatherApiData(data.current, data.location, responseUnits);
       }
     }
 
