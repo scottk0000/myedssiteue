@@ -28,10 +28,8 @@ const WEATHER_SERVICES = {
     baseUrl: 'https://258616-skweatherproxy-stage.adobeioruntime.net/api/v1/web/weather-proxy/get-weather',
     currentEndpoint: '/current.json',
     forecastEndpoint: '/forecast.json',
-    getParams: (location, apiKey) => ({
-      key: apiKey,
+    getParams: (location) => ({
       q: location,
-      aqi: 'no',
     }),
   },
   accuweather: {
@@ -50,7 +48,9 @@ const WEATHER_SERVICES = {
  * Build URL with query parameters
  */
 function buildUrl(baseUrl, endpoint, params) {
-  const url = new URL(endpoint, baseUrl);
+  // For weatherapi proxy, append the endpoint to the baseUrl
+  const fullUrl = baseUrl.endsWith('/') ? baseUrl + endpoint.substring(1) : baseUrl + endpoint;
+  const url = new URL(fullUrl);
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       url.searchParams.append(key, value);
@@ -169,7 +169,7 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         }
       }
     } else if (provider === 'weatherapi') {
-      const params = service.getParams(location, apiKey, units);
+      const params = service.getParams(location);
       if (showForecast) {
         params.days = 5;
         const url = buildUrl(service.baseUrl, service.forecastEndpoint, params);
