@@ -392,6 +392,10 @@ function getBlockConfig(block) {
  * Main decoration function
  */
 export default async function decorate(block) {
+  // Immediately hide the block content to prevent flash of raw values
+  const originalDisplay = block.style.display;
+  block.style.display = 'none';
+
   const config = getBlockConfig(block);
 
   // Debug logging - remove in production
@@ -409,6 +413,9 @@ export default async function decorate(block) {
   // Show loading state
   const loadingDisplay = createLoadingDisplay();
   block.appendChild(loadingDisplay);
+
+  // Restore display now that we have loading content
+  block.style.display = originalDisplay;
 
   try {
     if (!config.location) {
@@ -443,5 +450,8 @@ export default async function decorate(block) {
     // Show error display
     const errorDisplay = createErrorDisplay(error.message);
     block.appendChild(errorDisplay);
+
+    // Ensure block is visible even with error
+    block.style.display = originalDisplay;
   }
 }
