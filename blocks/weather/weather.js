@@ -157,16 +157,8 @@ function normalizeWeatherApiForecast(forecast, units = 'metric') {
     tempUnit = '°F';
   }
 
-  // Get tomorrow and next 4 days (5 total), excluding today
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-  
-  const filteredDays = forecast.forecastday.filter((day) => {
-    const dayDate = new Date(day.date);
-    dayDate.setHours(0, 0, 0, 0);
-    return dayDate >= tomorrow;
-  }).slice(0, 5); // Take next 5 days
+  // Take days 1-5 from the forecast (skipping day 0 which is today)
+  const filteredDays = forecast.forecastday.slice(1, 6); // Take next 5 days after today
 
   return filteredDays.map((day) => ({
     date: new Date(day.date).toLocaleDateString(),
@@ -225,17 +217,17 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         const data = await response.json();
         // Use units from response if available, otherwise fall back to the requested units
         const responseUnits = data.units || units;
-        
+
         // Find today's forecast data for high/low temps
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayForecast = data.forecast.forecastday.find((day) => {
-          const dayDate = new Date(day.date);
-          dayDate.setHours(0, 0, 0, 0);
-          return dayDate.getTime() === today.getTime();
-        });
-        
-        weatherData.current = normalizeWeatherApiData(data.current, data.location, todayForecast, responseUnits);
+        // Use the first day in the forecast array as "today" since the API returns today first
+        const todayForecast = data.forecast.forecastday[0];
+
+        weatherData.current = normalizeWeatherApiData(
+          data.current,
+          data.location,
+          todayForecast,
+          responseUnits,
+        );
         weatherData.forecast = normalizeWeatherApiForecast(data.forecast, responseUnits);
       } else {
         const url = buildUrl(service.baseUrl, service.currentEndpoint, params);
@@ -272,7 +264,7 @@ function createWeatherDisplay(weatherData, theme) {
   // Current weather
   const currentWeather = document.createElement('div');
   currentWeather.className = 'weather-current';
-  
+
   // Build high/low display if available
   let highLowHtml = '';
   if (current.maxTemp !== null && current.minTemp !== null) {
@@ -283,7 +275,7 @@ function createWeatherDisplay(weatherData, theme) {
       </div>
     `;
   }
-  
+
   currentWeather.innerHTML = `
     <div class="weather-header">
       <h3 class="weather-location">${current.location}, ${current.country}</h3>
