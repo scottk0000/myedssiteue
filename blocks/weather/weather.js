@@ -96,13 +96,18 @@ function normalizeOpenWeatherMapForecast(data, units) {
     tempUnit = 'K';
   }
 
-  return data.list.slice(0, 5).map((item) => ({
-    date: new Date(item.dt * 1000).toLocaleDateString(),
-    temperature: Math.round(item.main.temp),
-    tempUnit,
-    description: item.weather[0].description,
-    icon: `${WEATHER_SERVICES.openweathermap.iconBaseUrl}/${item.weather[0].icon}.png`,
-  }));
+  return data.list.slice(0, 5).map((item) => {
+    // Create local date to avoid timezone offset issues
+    const localDate = new Date(item.dt * 1000);
+
+    return {
+      date: localDate.toLocaleDateString(),
+      temperature: Math.round(item.main.temp),
+      tempUnit,
+      description: item.weather[0].description,
+      icon: `${WEATHER_SERVICES.openweathermap.iconBaseUrl}/${item.weather[0].icon}.png`,
+    };
+  });
 }
 
 /**
@@ -160,14 +165,20 @@ function normalizeWeatherApiForecast(forecast, units = 'metric') {
   // Take days 1-5 from the forecast (skipping day 0 which is today)
   const filteredDays = forecast.forecastday.slice(1, 6); // Take next 5 days after today
 
-  return filteredDays.map((day) => ({
-    date: new Date(day.date).toLocaleDateString(),
-    maxTemp: Math.round(units === 'imperial' ? day.day.maxtemp_f : day.day.maxtemp_c),
-    minTemp: Math.round(units === 'imperial' ? day.day.mintemp_f : day.day.mintemp_c),
-    tempUnit,
-    description: day.day.condition.text,
-    icon: day.day.condition.icon,
-  }));
+  return filteredDays.map((day) => {
+    // Parse date as local date to avoid timezone offset issues
+    const [year, month, dayNum] = day.date.split('-');
+    const localDate = new Date(year, month - 1, dayNum);
+
+    return {
+      date: localDate.toLocaleDateString(),
+      maxTemp: Math.round(units === 'imperial' ? day.day.maxtemp_f : day.day.maxtemp_c),
+      minTemp: Math.round(units === 'imperial' ? day.day.mintemp_f : day.day.mintemp_c),
+      tempUnit,
+      description: day.day.condition.text,
+      icon: day.day.condition.icon,
+    };
+  });
 }
 
 /**
