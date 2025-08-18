@@ -403,28 +403,56 @@ function getBlockConfig(block) {
   const extractedConfig = {};
   if (Object.keys(blockConfig).length === 0 && block.children.length > 0) {
     const rows = [...block.children];
-    const values = rows.map((row) => {
-      const cell = row.querySelector('p');
-      return cell ? cell.textContent.trim() : '';
-    });
+
+    // Handle nested structure where all values might be in a single row
+    let values = [];
+    if (rows.length === 1 && rows[0].querySelector('div')) {
+      // Nested structure: all <p> elements are inside a single row's div
+      const nestedDiv = rows[0].querySelector('div');
+      values = [...nestedDiv.querySelectorAll('p')].map((p) => p.textContent.trim());
+    } else {
+      // Flat structure: each row contains one value
+      values = rows.map((row) => {
+        const cell = row.querySelector('p');
+        return cell ? cell.textContent.trim() : '';
+      });
+    }
 
     // eslint-disable-next-line no-console
     console.log('Extracted values:', values);
 
-    // Map values by position - Universal Editor outputs values in component-models.json order
-    // Order: weatherData_location, weatherData_provider, weatherData_units, etc.
-    // But it looks like only some fields are being output, so let's be more defensive
-    if (values.length === 2) {
-      // If only 2 values, they're likely units and provider based on console output
-      extractedConfig.units = values[0] || ''; // First value: imperial
-      extractedConfig.provider = values[1] || ''; // Second value: weatherapi
-    } else {
-      // Full field mapping if all values are present
-      if (values.length > 0) extractedConfig.location = values[0] || '';
-      if (values.length > 1) extractedConfig.provider = values[1] || '';
-      if (values.length > 2) extractedConfig.units = values[2] || '';
-      if (values.length > 3) extractedConfig.showForecast = values[3] || '';
-      if (values.length > 4) extractedConfig.theme = values[4] || '';
+    // Map values by position - Universal Editor outputs values in _weather.json field order
+    // Current observed order: location, units, showForecast, theme (provider missing)
+    // But let's map all possible positions defensively
+    if (values.length > 0) {
+      [extractedConfig.location] = values;
+    }
+    if (values.length > 1) {
+      // Second value could be provider or units, check if it's a unit value
+      if (['metric', 'imperial', 'standard'].includes(values[1])) {
+        [, extractedConfig.units] = values;
+      } else {
+        [, extractedConfig.provider] = values;
+      }
+    }
+    if (values.length > 2) {
+      // Third value could be units or showForecast
+      if (['metric', 'imperial', 'standard'].includes(values[2])) {
+        [, , extractedConfig.units] = values;
+      } else if (['true', 'false'].includes(values[2])) {
+        [, , extractedConfig.showForecast] = values;
+      }
+    }
+    if (values.length > 3) {
+      // Fourth value could be showForecast or theme
+      if (['true', 'false'].includes(values[3])) {
+        [, , , extractedConfig.showForecast] = values;
+      } else {
+        [, , , extractedConfig.theme] = values;
+      }
+    }
+    if (values.length > 4) {
+      [, , , , extractedConfig.theme] = values;
     }
 
     // eslint-disable-next-line no-console
