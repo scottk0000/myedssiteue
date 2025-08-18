@@ -23,7 +23,7 @@
         {
           "component": "text",
           "valueType": "string",
-          "name": "location",
+          "name": "weatherData_location",
           "label": "City or Zip Code",
           "value": "New York",
           "description": "Enter a city name or zip code (e.g., 'New York' or '10001')"
@@ -50,7 +50,7 @@
         },
         {
           "component": "select",
-          "name": "units",
+          "name": "weatherData_units",
           "label": "Temperature Units",
           "value": "metric",
           "options": [
@@ -70,13 +70,13 @@
         },
         {
           "component": "boolean",
-          "name": "showForecast",
+          "name": "weatherData_showForecast",
           "label": "Show 5-Day Forecast",
           "value": false
         },
         {
           "component": "select",
-          "name": "theme",
+          "name": "weatherData_theme",
           "label": "Display Theme",
           "value": "default",
           "options": [
