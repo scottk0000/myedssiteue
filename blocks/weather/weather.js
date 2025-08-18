@@ -422,12 +422,13 @@ function getBlockConfig(block) {
     console.log('Extracted values:', values);
 
     // Map values by position based on actual observed output
-    // Actual order from console: location, units, showForecast, theme (provider missing)
+    // Current order: ['Seattle', 'weatherapi', 'imperial', 'true', 'dark']
+    // This maps to: location, provider, units, showForecast, theme
     if (values.length > 0) extractedConfig.location = values[0] || '';
-    if (values.length > 1) extractedConfig.units = values[1] || '';
-    if (values.length > 2) extractedConfig.showForecast = values[2] || '';
-    if (values.length > 3) extractedConfig.theme = values[3] || '';
-    // Provider is not being output by Universal Editor, will use default fallback
+    if (values.length > 1) extractedConfig.provider = values[1] || '';
+    if (values.length > 2) extractedConfig.units = values[2] || '';
+    if (values.length > 3) extractedConfig.showForecast = values[3] || '';
+    if (values.length > 4) extractedConfig.theme = values[4] || '';
 
     // eslint-disable-next-line no-console
     console.log('Extracted config:', extractedConfig);
