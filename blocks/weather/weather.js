@@ -407,7 +407,7 @@ function getBlockConfig(block) {
   }
 
   // Map values by position - Universal Editor outputs in component-models.json field order
-  // Order: weatherData_location, weatherData_provider, weatherData_units, 
+  // Order: weatherData_location, weatherData_provider, weatherData_units,
   // weatherData_showForecast, weatherData_theme
   const config = {
     location: values[0] || block.getAttribute('data-location') || 'New York',
