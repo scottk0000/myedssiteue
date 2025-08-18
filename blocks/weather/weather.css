@@ -49,11 +49,33 @@
   filter: drop-shadow(0 2px 4px rgb(0 0 0 / 30%));
 }
 
+.weather-temp-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .weather-temp {
   font-size: 3rem;
   font-weight: 700;
   text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
   line-height: 1;
+}
+
+.weather-today-temps {
+  display: flex;
+  gap: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.weather-today-high {
+  color: #ff6b6b;
+}
+
+.weather-today-low {
+  color: #4ecdc4;
 }
 
 .weather-description {
@@ -139,10 +161,21 @@
   margin-bottom: 0.5rem;
 }
 
-.forecast-temp {
-  font-size: 1.1rem;
-  font-weight: 600;
+.forecast-temps {
   margin-bottom: 0.25rem;
+}
+
+.forecast-temp-high {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ff6b6b;
+  margin-bottom: 0.125rem;
+}
+
+.forecast-temp-low {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4ecdc4;
 }
 
 .forecast-desc {
@@ -229,6 +262,22 @@
   background: rgb(236 240 241 / 10%);
 }
 
+.weather-theme-dark .forecast-temp-high {
+  color: #ff7675;
+}
+
+.weather-theme-dark .forecast-temp-low {
+  color: #74b9ff;
+}
+
+.weather-theme-dark .weather-today-high {
+  color: #ff7675;
+}
+
+.weather-theme-dark .weather-today-low {
+  color: #74b9ff;
+}
+
 /* Minimal Theme */
 .weather-theme-minimal {
   background: #fff;
@@ -267,6 +316,22 @@
 .weather-theme-minimal .weather-forecast-day {
   background: #f8f9fa;
   color: #495057;
+}
+
+.weather-theme-minimal .forecast-temp-high {
+  color: #e74c3c;
+}
+
+.weather-theme-minimal .forecast-temp-low {
+  color: #3498db;
+}
+
+.weather-theme-minimal .weather-today-high {
+  color: #e74c3c;
+}
+
+.weather-theme-minimal .weather-today-low {
+  color: #3498db;
 }
 
 /* Card Theme */
@@ -310,6 +375,22 @@
   color: #495057;
 }
 
+.weather-theme-card .forecast-temp-high {
+  color: #e74c3c;
+}
+
+.weather-theme-card .forecast-temp-low {
+  color: #3498db;
+}
+
+.weather-theme-card .weather-today-high {
+  color: #e74c3c;
+}
+
+.weather-theme-card .weather-today-low {
+  color: #3498db;
+}
+
 /* Responsive Design */
 @media (width <= 768px) {
   .weather-container {
@@ -318,6 +399,10 @@
   
   .weather-temp {
     font-size: 2.5rem;
+  }
+  
+  .weather-today-temps {
+    font-size: 0.875rem;
   }
   
   .weather-icon {
@@ -348,6 +433,11 @@
   
   .weather-temp {
     font-size: 2rem;
+  }
+  
+  .weather-today-temps {
+    font-size: 0.8rem;
+    gap: 0.75rem;
   }
   
   .weather-details {

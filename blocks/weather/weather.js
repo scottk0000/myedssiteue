@@ -108,12 +108,14 @@ function normalizeOpenWeatherMapForecast(data, units) {
 /**
  * Normalize WeatherAPI current weather data
  */
-function normalizeWeatherApiData(current, location, units = 'metric') {
+function normalizeWeatherApiData(current, location, todayForecast = null, units = 'metric') {
   let tempUnit = '°C';
   let temperature = Math.round(current.temp_c);
   let feelsLike = Math.round(current.feelslike_c);
   let windSpeed = current.wind_kph;
   let pressure = current.pressure_mb;
+  let maxTemp = null;
+  let minTemp = null;
 
   if (units === 'imperial') {
     tempUnit = '°F';
@@ -121,6 +123,12 @@ function normalizeWeatherApiData(current, location, units = 'metric') {
     feelsLike = Math.round(current.feelslike_f);
     windSpeed = current.wind_mph;
     pressure = current.pressure_in;
+  }
+
+  // Extract today's high/low from forecast if available
+  if (todayForecast) {
+    maxTemp = Math.round(units === 'imperial' ? todayForecast.day.maxtemp_f : todayForecast.day.maxtemp_c);
+    minTemp = Math.round(units === 'imperial' ? todayForecast.day.mintemp_f : todayForecast.day.mintemp_c);
   }
 
   return {
@@ -134,6 +142,8 @@ function normalizeWeatherApiData(current, location, units = 'metric') {
     windSpeed,
     pressure,
     feelsLike,
+    maxTemp,
+    minTemp,
   };
 }
 
@@ -147,9 +157,21 @@ function normalizeWeatherApiForecast(forecast, units = 'metric') {
     tempUnit = '°F';
   }
 
-  return forecast.forecastday.map((day) => ({
+  // Get tomorrow and next 4 days (5 total), excluding today
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  
+  const filteredDays = forecast.forecastday.filter((day) => {
+    const dayDate = new Date(day.date);
+    dayDate.setHours(0, 0, 0, 0);
+    return dayDate >= tomorrow;
+  }).slice(0, 5); // Take next 5 days
+
+  return filteredDays.map((day) => ({
     date: new Date(day.date).toLocaleDateString(),
-    temperature: Math.round(units === 'imperial' ? day.day.avgtemp_f : day.day.avgtemp_c),
+    maxTemp: Math.round(units === 'imperial' ? day.day.maxtemp_f : day.day.maxtemp_c),
+    minTemp: Math.round(units === 'imperial' ? day.day.mintemp_f : day.day.mintemp_c),
     tempUnit,
     description: day.day.condition.text,
     icon: day.day.condition.icon,
@@ -192,7 +214,7 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
     } else if (provider === 'weatherapi') {
       const params = service.getParams(location, units);
       if (showForecast) {
-        params.days = 5;
+        params.days = 6; // Request 6 days to ensure we have today + next 5
         const url = buildUrl(service.baseUrl, service.forecastEndpoint, params);
         const response = await fetch(url);
 
@@ -203,7 +225,17 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
         const data = await response.json();
         // Use units from response if available, otherwise fall back to the requested units
         const responseUnits = data.units || units;
-        weatherData.current = normalizeWeatherApiData(data.current, data.location, responseUnits);
+        
+        // Find today's forecast data for high/low temps
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayForecast = data.forecast.forecastday.find((day) => {
+          const dayDate = new Date(day.date);
+          dayDate.setHours(0, 0, 0, 0);
+          return dayDate.getTime() === today.getTime();
+        });
+        
+        weatherData.current = normalizeWeatherApiData(data.current, data.location, todayForecast, responseUnits);
         weatherData.forecast = normalizeWeatherApiForecast(data.forecast, responseUnits);
       } else {
         const url = buildUrl(service.baseUrl, service.currentEndpoint, params);
@@ -240,12 +272,27 @@ function createWeatherDisplay(weatherData, theme) {
   // Current weather
   const currentWeather = document.createElement('div');
   currentWeather.className = 'weather-current';
+  
+  // Build high/low display if available
+  let highLowHtml = '';
+  if (current.maxTemp !== null && current.minTemp !== null) {
+    highLowHtml = `
+      <div class="weather-today-temps">
+        <span class="weather-today-high">H: ${current.maxTemp}${current.tempUnit}</span>
+        <span class="weather-today-low">L: ${current.minTemp}${current.tempUnit}</span>
+      </div>
+    `;
+  }
+  
   currentWeather.innerHTML = `
     <div class="weather-header">
       <h3 class="weather-location">${current.location}, ${current.country}</h3>
       <div class="weather-main">
         <img class="weather-icon" src="${current.icon}" alt="${current.description}" />
-        <div class="weather-temp">${current.temperature}${current.tempUnit}</div>
+        <div class="weather-temp-section">
+          <div class="weather-temp">${current.temperature}${current.tempUnit}</div>
+          ${highLowHtml}
+        </div>
       </div>
       <div class="weather-description">${current.description}</div>
     </div>
@@ -290,7 +337,10 @@ function createWeatherDisplay(weatherData, theme) {
       dayElement.innerHTML = `
         <div class="forecast-date">${day.date}</div>
         <img class="forecast-icon" src="${day.icon}" alt="${day.description}" />
-        <div class="forecast-temp">${day.temperature}${day.tempUnit}</div>
+        <div class="forecast-temps">
+          <div class="forecast-temp-high">H: ${day.maxTemp}${day.tempUnit}</div>
+          <div class="forecast-temp-low">L: ${day.minTemp}${day.tempUnit}</div>
+        </div>
         <div class="forecast-desc">${day.description}</div>
       `;
       forecastList.appendChild(dayElement);
