@@ -131,7 +131,7 @@ function normalizeWeatherApiData(current, location, todayForecast = null, units 
   }
 
   // Extract today's high/low from forecast if available
-  if (todayForecast) {
+  if (todayForecast && todayForecast.day) {
     maxTemp = Math.round(units === 'imperial' ? todayForecast.day.maxtemp_f : todayForecast.day.maxtemp_c);
     minTemp = Math.round(units === 'imperial' ? todayForecast.day.mintemp_f : todayForecast.day.mintemp_c);
   }
@@ -231,7 +231,11 @@ async function fetchWeatherData(provider, location, apiKey, units, showForecast 
 
         // Find today's forecast data for high/low temps
         // Use the first day in the forecast array as "today" since the API returns today first
-        const todayForecast = data.forecast.forecastday[0];
+        const todayForecast = data.forecast && data.forecast.forecastday
+          && data.forecast.forecastday[0];
+
+        // eslint-disable-next-line no-console
+        console.log('Today forecast data:', todayForecast);
 
         weatherData.current = normalizeWeatherApiData(
           data.current,
@@ -407,14 +411,21 @@ function getBlockConfig(block) {
     // eslint-disable-next-line no-console
     console.log('Extracted values:', values);
 
-    // Map values by position - Universal Editor outputs values in _weather.json field order
-    // Based on your new grouped configuration: weatherData_location, provider, etc.
-    if (values.length > 0) extractedConfig.location = values[0] || ''; // weatherData_location
-    if (values.length > 1) extractedConfig.provider = values[1] || ''; // provider
-    if (values.length > 2) extractedConfig.units = values[2] || ''; // weatherData_units
-    if (values.length > 3) extractedConfig.showForecast = values[3] || ''; // showForecast
-    if (values.length > 4) extractedConfig.theme = values[4] || ''; // weatherData_theme
-    // Note: Universal Editor outputs all configured fields in the order defined in models
+    // Map values by position - Universal Editor outputs values in component-models.json order
+    // Order: weatherData_location, weatherData_provider, weatherData_units, etc.
+    // But it looks like only some fields are being output, so let's be more defensive
+    if (values.length === 2) {
+      // If only 2 values, they're likely units and provider based on console output
+      extractedConfig.units = values[0] || ''; // First value: imperial
+      extractedConfig.provider = values[1] || ''; // Second value: weatherapi
+    } else {
+      // Full field mapping if all values are present
+      if (values.length > 0) extractedConfig.location = values[0] || '';
+      if (values.length > 1) extractedConfig.provider = values[1] || '';
+      if (values.length > 2) extractedConfig.units = values[2] || '';
+      if (values.length > 3) extractedConfig.showForecast = values[3] || '';
+      if (values.length > 4) extractedConfig.theme = values[4] || '';
+    }
 
     // eslint-disable-next-line no-console
     console.log('Extracted config:', extractedConfig);
@@ -424,7 +435,7 @@ function getBlockConfig(block) {
   // Support both grouped (weatherData_*) and ungrouped field names for backward compatibility
   const config = {
     location: blockConfig.weatherData_location || blockConfig.location || extractedConfig.location || block.getAttribute('data-location') || 'New York',
-    provider: blockConfig.provider || extractedConfig.provider || block.getAttribute('data-provider') || 'weatherapi',
+    provider: blockConfig.weatherData_provider || blockConfig.provider || extractedConfig.provider || block.getAttribute('data-provider') || 'weatherapi',
     // apiKey is no longer required from Universal Editor or block attributes
     apiKey: '',
     // Support units selection (C/F) from Universal Editor or block attributes
@@ -432,6 +443,9 @@ function getBlockConfig(block) {
     showForecast: (blockConfig.weatherData_showForecast || blockConfig.showforecast || blockConfig.showForecast || extractedConfig.showForecast || block.getAttribute('data-show-forecast')) === 'true',
     theme: blockConfig.weatherData_theme || blockConfig.theme || extractedConfig.theme || block.getAttribute('data-theme') || 'default',
   };
+
+  // eslint-disable-next-line no-console
+  console.log('Final config:', config);
 
   return config;
 }

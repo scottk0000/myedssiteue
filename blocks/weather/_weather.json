@@ -30,7 +30,7 @@
         },
         {
           "component": "select",
-          "name": "provider",
+          "name": "weatherData_provider",
           "label": "Weather Provider",
           "value": "weatherapi",
           "options": [
