@@ -390,24 +390,15 @@ function getBlockConfig(block) {
   // First try to read from block content (standard AEM approach)
   const blockConfig = readBlockConfig(block);
 
-  // Debug: Log which config method is being used
-  // eslint-disable-next-line no-console
-  console.log('readBlockConfig result:', blockConfig);
-
   // If readBlockConfig didn't work, try to extract values by position
   // based on the field order in _weather.json
   const extractedConfig = {};
   if (Object.keys(blockConfig).length === 0 && block.children.length > 0) {
-    // eslint-disable-next-line no-console
-    console.log('Using fallback positional extraction for Universal Editor');
     const rows = [...block.children];
     const values = rows.map((row) => {
       const cell = row.querySelector('p');
       return cell ? cell.textContent.trim() : '';
     });
-
-    // eslint-disable-next-line no-console
-    console.log('Extracted values:', values);
 
     // Map values by position - Universal Editor outputs values in _weather.json field order
     // Based on your configuration: location, provider, units, showForecast, theme
@@ -417,9 +408,6 @@ function getBlockConfig(block) {
     if (values.length > 3) extractedConfig.showForecast = values[3] || '';
     if (values.length > 4) extractedConfig.theme = values[4] || '';
     // Note: Universal Editor outputs all configured fields in the order defined in _weather.json
-
-    // eslint-disable-next-line no-console
-    console.log('Extracted config:', extractedConfig);
   }
 
   // Map the configuration values with fallbacks
@@ -434,8 +422,6 @@ function getBlockConfig(block) {
     theme: blockConfig.theme || extractedConfig.theme || block.getAttribute('data-theme') || 'default',
   };
 
-  // eslint-disable-next-line no-console
-  console.log('Final config:', config);
   return config;
 }
 
