@@ -101,7 +101,7 @@ function normalizeOpenWeatherMapForecast(data, units) {
     const localDate = new Date(item.dt * 1000);
 
     return {
-      date: localDate.toLocaleDateString(),
+      date: `${localDate.toLocaleDateString('en-US', { weekday: 'short' })} ${localDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}`,
       temperature: Math.round(item.main.temp),
       tempUnit,
       description: item.weather[0].description,
@@ -171,7 +171,7 @@ function normalizeWeatherApiForecast(forecast, units = 'metric') {
     const localDate = new Date(year, month - 1, dayNum);
 
     return {
-      date: localDate.toLocaleDateString(),
+      date: `${localDate.toLocaleDateString('en-US', { weekday: 'short' })} ${localDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}`,
       maxTemp: Math.round(units === 'imperial' ? day.day.maxtemp_f : day.day.maxtemp_c),
       minTemp: Math.round(units === 'imperial' ? day.day.mintemp_f : day.day.mintemp_c),
       tempUnit,
