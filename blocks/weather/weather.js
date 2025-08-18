@@ -1,5 +1,4 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
-import { readBlockConfig } from '../../scripts/aem.js';
 
 // Weather service configurations
 const WEATHER_SERVICES = {
@@ -388,67 +387,36 @@ function createLoadingDisplay() {
 }
 
 /**
- * Get configuration from block content or attributes
+ * Get configuration from block content - follows standard AEM Edge Delivery Services pattern
  */
 function getBlockConfig(block) {
-  // First try to read from block content (standard AEM approach)
-  const blockConfig = readBlockConfig(block);
+  const rows = [...block.children];
+  let values = [];
 
-  // Debug: Log which config method is being used
-  // eslint-disable-next-line no-console
-  console.log('readBlockConfig result:', blockConfig);
-
-  // If readBlockConfig didn't work, try to extract values by position
-  // based on the field order in _weather.json
-  const extractedConfig = {};
-  if (Object.keys(blockConfig).length === 0 && block.children.length > 0) {
-    const rows = [...block.children];
-
-    // Handle nested structure where all values might be in a single row
-    let values = [];
-    if (rows.length === 1 && rows[0].querySelector('div')) {
-      // Nested structure: all <p> elements are inside a single row's div
-      const nestedDiv = rows[0].querySelector('div');
-      values = [...nestedDiv.querySelectorAll('p')].map((p) => p.textContent.trim());
-    } else {
-      // Flat structure: each row contains one value
-      values = rows.map((row) => {
-        const cell = row.querySelector('p');
-        return cell ? cell.textContent.trim() : '';
-      });
-    }
-
-    // eslint-disable-next-line no-console
-    console.log('Extracted values:', values);
-
-    // Map values by position based on actual observed output
-    // Current order: ['Seattle', 'weatherapi', 'imperial', 'true', 'dark']
-    // This maps to: location, provider, units, showForecast, theme
-    if (values.length > 0) extractedConfig.location = values[0] || '';
-    if (values.length > 1) extractedConfig.provider = values[1] || '';
-    if (values.length > 2) extractedConfig.units = values[2] || '';
-    if (values.length > 3) extractedConfig.showForecast = values[3] || '';
-    if (values.length > 4) extractedConfig.theme = values[4] || '';
-
-    // eslint-disable-next-line no-console
-    console.log('Extracted config:', extractedConfig);
+  // Handle nested structure where all values might be in a single row
+  if (rows.length === 1 && rows[0].querySelector('div')) {
+    // Nested structure: all <p> elements are inside a single row's div
+    const nestedDiv = rows[0].querySelector('div');
+    values = [...nestedDiv.querySelectorAll('p')].map((p) => p.textContent.trim());
+  } else {
+    // Flat structure: each row contains one value
+    values = rows.map((row) => {
+      const cell = row.querySelector('p');
+      return cell ? cell.textContent.trim() : '';
+    });
   }
 
-  // Map the configuration values with fallbacks
-  // Support both grouped (weatherData_*) and ungrouped field names for backward compatibility
+  // Map values by position - Universal Editor outputs in component-models.json field order
+  // Order: weatherData_location, weatherData_provider, weatherData_units, weatherData_showForecast, weatherData_theme
   const config = {
-    location: blockConfig.weatherData_location || blockConfig.location || extractedConfig.location || block.getAttribute('data-location') || 'New York',
-    provider: blockConfig.weatherData_provider || blockConfig.provider || extractedConfig.provider || block.getAttribute('data-provider') || 'weatherapi',
-    // apiKey is no longer required from Universal Editor or block attributes
+    location: values[0] || block.getAttribute('data-location') || 'New York',
+    provider: values[1] || block.getAttribute('data-provider') || 'weatherapi',
+    units: values[2] || block.getAttribute('data-units') || 'metric',
+    showForecast: (values[3] || block.getAttribute('data-show-forecast') || 'false') === 'true',
+    theme: values[4] || block.getAttribute('data-theme') || 'default',
+    // apiKey is handled by the proxy service
     apiKey: '',
-    // Support units selection (C/F) from Universal Editor or block attributes
-    units: blockConfig.weatherData_units || blockConfig.units || extractedConfig.units || block.getAttribute('data-units') || 'metric',
-    showForecast: (blockConfig.weatherData_showForecast || blockConfig.showforecast || blockConfig.showForecast || extractedConfig.showForecast || block.getAttribute('data-show-forecast')) === 'true',
-    theme: blockConfig.weatherData_theme || blockConfig.theme || extractedConfig.theme || block.getAttribute('data-theme') || 'default',
   };
-
-  // eslint-disable-next-line no-console
-  console.log('Final config:', config);
 
   return config;
 }
