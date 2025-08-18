@@ -408,28 +408,29 @@ function getBlockConfig(block) {
     console.log('Extracted values:', values);
 
     // Map values by position - Universal Editor outputs values in _weather.json field order
-    // Based on your configuration: location, provider, units, showForecast, theme
-    if (values.length > 0) extractedConfig.location = values[0] || '';
-    if (values.length > 1) extractedConfig.provider = values[1] || '';
-    if (values.length > 2) extractedConfig.units = values[2] || '';
-    if (values.length > 3) extractedConfig.showForecast = values[3] || '';
-    if (values.length > 4) extractedConfig.theme = values[4] || '';
-    // Note: Universal Editor outputs all configured fields in the order defined in _weather.json
+    // Based on your new grouped configuration: weatherData_location, provider, etc.
+    if (values.length > 0) extractedConfig.location = values[0] || ''; // weatherData_location
+    if (values.length > 1) extractedConfig.provider = values[1] || ''; // provider
+    if (values.length > 2) extractedConfig.units = values[2] || ''; // weatherData_units
+    if (values.length > 3) extractedConfig.showForecast = values[3] || ''; // showForecast
+    if (values.length > 4) extractedConfig.theme = values[4] || ''; // weatherData_theme
+    // Note: Universal Editor outputs all configured fields in the order defined in models
 
     // eslint-disable-next-line no-console
     console.log('Extracted config:', extractedConfig);
   }
 
   // Map the configuration values with fallbacks
+  // Support both grouped (weatherData_*) and ungrouped field names for backward compatibility
   const config = {
-    location: blockConfig.location || extractedConfig.location || block.getAttribute('data-location') || 'New York',
-    provider: blockConfig.provider || extractedConfig.provider || block.getAttribute('data-provider') || 'openweathermap',
+    location: blockConfig.weatherData_location || blockConfig.location || extractedConfig.location || block.getAttribute('data-location') || 'New York',
+    provider: blockConfig.provider || extractedConfig.provider || block.getAttribute('data-provider') || 'weatherapi',
     // apiKey is no longer required from Universal Editor or block attributes
     apiKey: '',
     // Support units selection (C/F) from Universal Editor or block attributes
-    units: blockConfig.units || extractedConfig.units || block.getAttribute('data-units') || 'metric',
-    showForecast: (blockConfig.showforecast || blockConfig.showForecast || extractedConfig.showForecast || block.getAttribute('data-show-forecast')) === 'true',
-    theme: blockConfig.theme || extractedConfig.theme || block.getAttribute('data-theme') || 'default',
+    units: blockConfig.weatherData_units || blockConfig.units || extractedConfig.units || block.getAttribute('data-units') || 'metric',
+    showForecast: (blockConfig.weatherData_showForecast || blockConfig.showforecast || blockConfig.showForecast || extractedConfig.showForecast || block.getAttribute('data-show-forecast')) === 'true',
+    theme: blockConfig.weatherData_theme || blockConfig.theme || extractedConfig.theme || block.getAttribute('data-theme') || 'default',
   };
 
   return config;
