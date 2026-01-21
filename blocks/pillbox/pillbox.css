@@ -1,0 +1,80 @@
+.pillbox {
+  margin: 20px 0;
+}
+
+.pillbox .pillbox-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.pillbox .pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  background-color: #e0e0e0;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.pillbox .pill:hover {
+  background-color: #d0d0d0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Variant: primary */
+.pillbox.primary .pill {
+  background-color: #0066cc;
+  color: white;
+}
+
+.pillbox.primary .pill:hover {
+  background-color: #0052a3;
+}
+
+/* Variant: success */
+.pillbox.success .pill {
+  background-color: #28a745;
+  color: white;
+}
+
+.pillbox.success .pill:hover {
+  background-color: #218838;
+}
+
+/* Variant: warning */
+.pillbox.warning .pill {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.pillbox.warning .pill:hover {
+  background-color: #e0a800;
+}
+
+/* Variant: danger */
+.pillbox.danger .pill {
+  background-color: #dc3545;
+  color: white;
+}
+
+.pillbox.danger .pill:hover {
+  background-color: #c82333;
+}
+
+/* Size variants */
+.pillbox.small .pill {
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+.pillbox.large .pill {
+  padding: 8px 20px;
+  font-size: 16px;
+}

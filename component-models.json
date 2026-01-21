@@ -216,6 +216,18 @@
     ]
   },
   {
+    "id": "pill",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "label",
+        "label": "Pill Label",
+        "required": true
+      }
+    ]
+  },
+  {
     "id": "tab",
     "fields": [
       {
@@ -224,13 +236,6 @@
         "name": "tabTitle",
         "label": "Tab Title",
         "required": true
-      },
-      {
-        "component": "richtext",
-        "name": "content",
-        "value": "",
-        "label": "Content",
-        "valueType": "string"
       }
     ]
   },

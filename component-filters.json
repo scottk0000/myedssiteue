@@ -17,7 +17,8 @@
       "columns",
       "fragment",
       "tabs",
-      "weather"
+      "weather",
+      "pillbox"
     ]
   },
   {
@@ -42,9 +43,25 @@
     ]
   },
   {
+    "id": "pillbox",
+    "components": [
+      "pill"
+    ]
+  },
+  {
     "id": "tabs",
     "components": [
       "tab"
+    ]
+  },
+  {
+    "id": "tab",
+    "components": [
+      "text",
+      "image",
+      "button",
+      "title",
+      "pillbox"
     ]
   }
 ]
