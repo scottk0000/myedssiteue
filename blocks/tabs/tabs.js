@@ -1,6 +1,9 @@
 import { toClassName } from '../../scripts/aem.js';
 
 export default async function decorate(block) {
+  // Check if we're in Universal Editor (authoring mode)
+  const isEditor = document.querySelector('meta[name="urn:adobe:aue:system:aemconnection"]');
+  
   // build tablist
   const tablist = document.createElement('div');
   tablist.className = 'tabs-list';
@@ -39,7 +42,20 @@ export default async function decorate(block) {
       button.setAttribute('aria-selected', true);
     });
     tablist.append(button);
-    tab.remove();
+    
+    // In Universal Editor, hide the tab title instead of removing it
+    // This preserves the DOM structure for authoring
+    if (isEditor) {
+      tab.classList.add('tabs-tab-title-hidden');
+      
+      // Sync button text when tab title changes in Universal Editor
+      const observer = new MutationObserver(() => {
+        button.innerHTML = tab.innerHTML;
+      });
+      observer.observe(tab, { childList: true, subtree: true, characterData: true });
+    } else {
+      tab.remove();
+    }
   });
 
   block.prepend(tablist);

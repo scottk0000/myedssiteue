@@ -1,3 +1,16 @@
+/* Hide tab titles in Universal Editor authoring mode */
+.tabs-tab-title-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .tabs .tabs-list {
   display: flex;
   gap: 0.5ch;
