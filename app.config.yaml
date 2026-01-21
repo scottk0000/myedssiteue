@@ -1,0 +1,38 @@
+application:
+  name: aem-pcm-pim-sync
+  version: 1.0.0
+  description: AEM Assets to PCM/PIM metadata synchronization
+  
+  actions:
+    aem-asset-sync:
+      function: adobe-io-runtime-action.js
+      runtime: nodejs:18
+      timeout: 60000
+      memory: 256
+      web: yes
+      annotations:
+        require-adobe-auth: false
+        final: true
+      inputs:
+        PCM_API_URL: $PCM_API_URL
+        PIM_API_URL: $PIM_API_URL
+        OAUTH_CLIENT_ID: $OAUTH_CLIENT_ID
+        OAUTH_CLIENT_SECRET: $OAUTH_CLIENT_SECRET
+        OAUTH_TOKEN_URL: $OAUTH_TOKEN_URL
+        LOG_LEVEL: $LOG_LEVEL
+        
+  sequences:
+    asset-sync-flow:
+      actions: aem-asset-sync
+      web: yes
+      
+  triggers:
+    aem-asset-events:
+      feed: /whisk.system/alarms/alarm
+      inputs:
+        cron: "*/5 * * * *"  # Check every 5 minutes (adjust as needed)
+        
+  rules:
+    asset-sync-rule:
+      trigger: aem-asset-events
+      action: aem-asset-sync

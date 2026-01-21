@@ -16,8 +16,7 @@
       "cards",
       "columns",
       "fragment",
-      "quote",
-      "quote-copilot",
+      "tabs",
       "weather"
     ]
   },
@@ -40,6 +39,12 @@
       "image",
       "button",
       "title"
+    ]
+  },
+  {
+    "id": "tabs",
+    "components": [
+      "tab"
     ]
   }
 ]
